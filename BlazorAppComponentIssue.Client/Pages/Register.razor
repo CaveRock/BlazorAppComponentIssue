@@ -1,8 +1,5 @@
-﻿@page "/formproblem"
-@rendermode InteractiveAuto
-
-<h3>FormProblem @(OperatingSystem.IsBrowser() ? "WASM" : "SERVER")</h3>
-
+﻿
+<p>Component: @(OperatingSystem.IsBrowser() ? "WASM" : "SERVER")</p>
 
 <EditForm EditContext="EC" FormName="RegisterContactForm">
     <DataAnnotationsValidator />
@@ -17,7 +14,7 @@
         <InputText Id="lastname" class="form-control" AutoComplete="off" @bind-Value="@Model.Email"></InputText>
         <ValidationMessage For="@(() => Model.Email)" />
     </div>
-  
+
 
     <button type="submit" @onclick="HandleSubmit" class="btn btn-primary">Submit</button>
 </EditForm>
@@ -34,16 +31,6 @@
         EC = new EditContext(Model);
         validationMessageStore = new ValidationMessageStore(EC);
         this.StateHasChanged();
-
-        //if (!OperatingSystem.IsBrowser())
-        //{
-        //    if (EC.Validate())
-        //    {
-        //        //await Task.Delay(1000);
-
-        //    }
-        //}
-
     }
 
     private async Task HandleSubmit()
@@ -55,3 +42,4 @@
         }
     }
 }
+
