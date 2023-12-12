@@ -1,0 +1,47 @@
+﻿@page "/formproblem"
+@rendermode InteractiveAuto
+
+<h3>FormProblem @(OperatingSystem.IsBrowser() ? "WASM" : "SERVER")</h3>
+
+
+<EditForm EditContext="EC" FormName="RegisterContactForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label for="firstname" class="form-label">First Name</label>
+        <InputText Id="firstname" class="form-control" AutoComplete="off" @bind-Value="Model.Name"></InputText>
+        <ValidationMessage For="@(() => Model.Name)" />
+    </div>
+    <div class="mb-3">
+        <label for="lastname" class="form-label">Email</label>
+        <InputText Id="lastname" class="form-control" AutoComplete="off" @bind-Value="@Model.Email"></InputText>
+        <ValidationMessage For="@(() => Model.Email)" />
+    </div>
+  
+
+    <button type="submit" @onclick="HandleSubmit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    private EditContext EC { get; set; }
+
+    private ValidationMessageStore validationMessageStore;
+
+    public FormModel Model { get; set; } = new FormModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        EC = new EditContext(Model);
+        validationMessageStore = new ValidationMessageStore(EC);
+        this.StateHasChanged();
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (EC.Validate())
+        {
+            //await Task.Delay(1000);
+
+        }
+    }
+}
