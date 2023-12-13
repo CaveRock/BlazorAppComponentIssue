@@ -1,9 +1,9 @@
 ﻿@page "/formproblem2"
-@rendermode InteractiveAuto
+@rendermode @(new InteractiveWebAssemblyRenderMode(false))
 
 <h3>FormProblem2WithComponent @(OperatingSystem.IsBrowser() ? "WASM" : "SERVER")</h3>
 
-<Register />
+<Register @rendermode="@(new InteractiveWebAssemblyRenderMode(false))" />
 
 
 @code {

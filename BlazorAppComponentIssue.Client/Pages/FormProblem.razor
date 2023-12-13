@@ -1,5 +1,11 @@
 ﻿@page "/formproblem"
-@rendermode InteractiveAuto
+@implements IDisposable
+@inject PersistentComponentState ApplicationState
+@*@rendermode InteractiveAuto*@
+
+
+@rendermode InteractiveWebAssembly
+@*@rendermode @(new InteractiveWebAssemblyRenderMode(false))*@
 
 <h3>FormProblem @(OperatingSystem.IsBrowser() ? "WASM" : "SERVER")</h3>
 
@@ -17,35 +23,71 @@
         <InputText Id="lastname" class="form-control" AutoComplete="off" @bind-Value="@Model.Email"></InputText>
         <ValidationMessage For="@(() => Model.Email)" />
     </div>
-  
+
 
     <button type="submit" @onclick="HandleSubmit" class="btn btn-primary">Submit</button>
 </EditForm>
 
 @code {
+
+    private PersistingComponentStateSubscription persistingSubscription;
+
+
     private EditContext EC { get; set; }
 
     private ValidationMessageStore validationMessageStore;
 
-    public FormModel Model { get; set; } = new FormModel();
+    public FormModel Model { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        EC = new EditContext(Model);
-        validationMessageStore = new ValidationMessageStore(EC);
-        this.StateHasChanged();
+        persistingSubscription = ApplicationState.RegisterOnPersisting(PersistForm);
 
 
 
+        if (!ApplicationState.TryTakeFromJson<FormModel>("registerForm", out var restored))
+        {
+            Model = new FormModel();
+            Model.Name = "foo";
+            EC = new EditContext(Model);
+            validationMessageStore = new ValidationMessageStore(EC);
+            this.StateHasChanged();
 
+
+
+        }
+        else
+        {
+            Console.WriteLine("Restored: " + restored.Name);
+            Model = restored;
+            EC = new EditContext(Model);
+            validationMessageStore = new ValidationMessageStore(EC);
+
+            this.StateHasChanged();
+        }
+
+    }
+
+    private Task PersistForm()
+    {
+        ApplicationState.PersistAsJson("registerForm", Model);
+
+        return Task.CompletedTask;
     }
 
     private async Task HandleSubmit()
     {
         if (EC.Validate())
         {
+
+
             //await Task.Delay(1000);
 
         }
+    }
+
+    void IDisposable.Dispose()
+    {
+        persistingSubscription.Dispose();
     }
 }
