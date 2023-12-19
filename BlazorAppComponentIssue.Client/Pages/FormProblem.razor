@@ -1,11 +1,7 @@
 ﻿@page "/formproblem"
-@implements IDisposable
+@inject IJSRuntime JS
 @inject PersistentComponentState ApplicationState
-@*@rendermode InteractiveAuto*@
-
-
-@rendermode InteractiveWebAssembly
-@*@rendermode @(new InteractiveWebAssemblyRenderMode(false))*@
+@rendermode InteractiveAuto
 
 <h3>FormProblem @(OperatingSystem.IsBrowser() ? "WASM" : "SERVER")</h3>
 
@@ -28,11 +24,10 @@
     <button type="submit" @onclick="HandleSubmit" class="btn btn-primary">Submit</button>
 </EditForm>
 
+
 @code {
 
-    private PersistingComponentStateSubscription persistingSubscription;
-
-
+    
     private EditContext EC { get; set; }
 
     private ValidationMessageStore validationMessageStore;
@@ -41,38 +36,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        persistingSubscription = ApplicationState.RegisterOnPersisting(PersistForm);
-
-
-
-        if (!ApplicationState.TryTakeFromJson<FormModel>("registerForm", out var restored))
-        {
+        
             Model = new FormModel();
-            Model.Name = "foo";
+            
             EC = new EditContext(Model);
             validationMessageStore = new ValidationMessageStore(EC);
             this.StateHasChanged();
-
-
-
-        }
-        else
-        {
-            Console.WriteLine("Restored: " + restored.Name);
-            Model = restored;
-            EC = new EditContext(Model);
-            validationMessageStore = new ValidationMessageStore(EC);
-
-            this.StateHasChanged();
-        }
-
-    }
-
-    private Task PersistForm()
-    {
-        ApplicationState.PersistAsJson("registerForm", Model);
-
-        return Task.CompletedTask;
     }
 
     private async Task HandleSubmit()
@@ -80,14 +49,7 @@
         if (EC.Validate())
         {
 
-
-            //await Task.Delay(1000);
-
         }
     }
 
-    void IDisposable.Dispose()
-    {
-        persistingSubscription.Dispose();
-    }
 }
